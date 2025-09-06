@@ -5,10 +5,19 @@ export async function handler(event, context) {
   await client.connect();
 
   try {
-    const { title, content } = JSON.parse(event.body);
+    const { title, content, cover, desc, author } = JSON.parse(event.body);
+
+    // تحقق من وجود العنوان والمحتوى
+    if (!title || !content || !author) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ success: false, error: "عنوان المقال، المحتوى والمؤلف مطلوب." })
+      };
+    }
+
     const result = await client.query(
-      "INSERT INTO posts (title, content) VALUES ($1, $2) RETURNING *",
-      [title, content]
+      "INSERT INTO posts (title, content, cover, desc, author) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [title, content, cover || null, desc || null, author]
     );
 
     return {
