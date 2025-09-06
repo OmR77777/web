@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>أصابع الفرعون — مجلة خفيفة مع أداة كتابة</title>
+  <meta name="description" content="أصابع الفرعون: موقع مقالات خفيف وجميل، مع أداة لكتابة ونشر مقالات منظمة مع الصور، ومواضع جاهزة لإعلانات Google AdSense.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- Load Google API for Sign-In -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg: #0e0f13;
+      --card: #171923;
+      --muted: #8b90a3;
+      --text: #e9ecf1;
+      --brand: #e0b15a;
+      --accent: #5ac8e0;
+      --radius: 18px;
+      --shadow: 0 8px 24px rgba(0,0,0,.25);
+      --success: #4CAF50;
+      --warning: #FF9800;
+      --error: #f44336;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Cairo",system-ui,Segoe UI,Arial;}
+    a{color:var(--brand);text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{max-width:1100px;margin:0 auto;padding:20px}
+    header{
+      position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(14,15,19,.9),rgba(14,15,19,.6));backdrop-filter:saturate(180%) blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .nav{display:flex;align-items:center;gap:16px;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px}
+    .logo-badge{width:36px;height:36px;border-radius:12px;background:conic-gradient(from 120deg,var(--brand),#b27b2b,var(--brand));display:grid;place-items:center;box-shadow:var(--shadow)}
+    .logo-badge span{font-weight:800}
+    .nav a.btn{padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:12px}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:stretch;margin:24px 0}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card .p{padding:20px}
+    .hero .title{font-size:34px;line-height:1.25;margin:0 0 10px}
+    .hero .subtitle{color:var(--muted);margin:0 0 16px}
+    .grid{display:grid;grid-template-columns:2.2fr 1fr;gap:20px}
+    .posts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .post{overflow:hidden}
+    .post .thumb{aspect-ratio:16/9;background:#101219;border-bottom:1px solid rgba(255,255,255,.06)}
+    .post .meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;margin-top:6px}
+    .post h3{margin:10px 0 6px;font-size:18px}
+
+    /* الشريط الجانبي */
+    .sidebar .widget{padding:16px;border-radius:var(--radius);background:var(--card);border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow)}
+    .ad-slot{display:grid;place-items:center;aspect-ratio: 1.2/1;background:#0f111a;border:1px dashed rgba(255,255,255,.15);border-radius:14px}
+    .ad-slot small{color:var(--muted)}
+
+    /* نافذة أداة التحرير */
+    dialog{width:min(980px,96vw);border:0;border-radius:22px;padding:0;background:var(--bg);color:var(--text);box-shadow:0 40px 120px rgba(0,0,0,.6)}
+    .ed-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);background:#0c0d12;border-top-left-radius:22px;border-top-right-radius:22px}
+    .ed-title{font-weight:700}
+    .ed-body{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;padding:16px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:10px;background:#0f1117;border-radius:14px;border:1px solid rgba(255,255,255,.06)}
+    .tool-btn{padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:#141724;cursor:pointer}
+    .tool-btn:active{transform:translateY(1px)}
+    .ed-left{display:flex;flex-direction:column;gap:10px}
+    #editorArea{min-height:320px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#121424}
+    #editorArea:empty::before{content:"ابدأ الكتابة هنا…";color:var(--muted)}
+    .ed-right{display:flex;flex-direction:column;gap:10px}
+    input, textarea, select{width:100%;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#101322;color:var(--text)}
+    label{font-size:13px;color:var(--muted)}
+    .actions{display:flex;gap:10px;justify-content:flex-end;padding:10px 16px;border-top:1px solid rgba(255,255,255,.08)}
+    .primary{background:var(--brand);color:#000;border:0}
+    .ghost{background:transparent;color:var(--text)}
+
+    footer{margin:30px 0;color:var(--muted);text-align:center}
+
+    /* تحسينات جديدة */
+    .user-section{display:flex;align-items:center;gap:10px}
+    .user-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
+    .user-name{font-size:14px;color:var(--text)}
+    .login-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--brand);color:#000;border-radius:12px;border:none;cursor:pointer}
+    .login-btn i{font-size:16px}
+    
+    .article-limit{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;color:var(--muted)}
+    .limit-bar{flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+    .limit-progress{height:100%;background:var(--brand);border-radius:3px;transition:width 0.3s}
+    
+    .image-gallery{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin:12px 0}
+    .gallery-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:move}
+    .gallery-item img{width:100%;height:100%;object-fit:cover}
+    .gallery-item .remove{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.7);color:white;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;font-size:12px;cursor:pointer}
+    
+    .dashboard{display:grid;grid-template-columns:250px 1fr;gap:20px;margin-top:20px}
+    .dashboard-nav{background:var(--card);border-radius:var(--radius);padding:16px}
+    .dashboard-nav a{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;margin-bottom:8px;transition:background 0.2s}
+    .dashboard-nav a:hover{background:rgba(255,255,255,.05)}
+    .dashboard-nav a.active{background:var(--brand);color:#000}
+    .dashboard-content{background:var(--card);border-radius:var(--radius);padding:20px}
+    
+    .stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:20px}
+    .stat-card{background:rgba(255,255,255,.05);border-radius:var(--radius);padding:16px;text-align:center}
+    .stat-value{font-size:24px;font-weight:bold;margin:8px 0;color:var(--brand)}
+    .stat-label{color:var(--muted);font-size:14px}
+    
+    .articles-table{width:100%;border-collapse:collapse;margin-top:16px}
+    .articles-table th, .articles-table td{padding:12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.1)}
+    .articles-table th{color:var(--muted);font-weight:600}
+    
+    .notification{position:fixed;top:20px;right:20px;padding:12px 16px;border-radius:10px;background:var(--card);border-left:4px solid var(--brand);box-shadow:var(--shadow);transform:translateX(100%);transition:transform 0.3s;z-index:1000}
+    .notification.show{transform:translateX(0)}
+    .notification.success{border-left-color:var(--success)}
+    .notification.error{border-left-color:var(--error)}
+    
+    .article-page{max-width:800px;margin:0 auto;padding:20px}
+    .article-header{margin-bottom:30px}
+    .article-cover{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--radius);margin-bottom:20px}
+    .article-title{font-size:36px;margin:0 0 10px}
+    .article-meta{display:flex;align-items:center;gap:12px;color:var(--muted);margin-bottom:20px}
+    .article-author{display:flex;align-items:center;gap:8px}
+    .article-content{line-height:1.8;font-size:18px}
+    .article-content img{max-width:100%;border-radius:12px;margin:20px auto}
+    .article-content h2{font-size:28px;margin:30px 0 15px;color:var(--brand)}
+    .article-content h3{font-size:24px;margin:25px 0 12px}
+    
+    .drag-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(var(--brand-rgb), 0.2);border:2px dashed var(--brand);border-radius:12px;display:grid;place-items:center;z-index:10;pointer-events:none;opacity:0;transition:opacity 0.2s}
+    .drag-overlay.active{opacity:1}
+    
+    @media (max-width: 900px){
+      .hero{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+      .posts{grid-template-columns:1fr}
+      .ed-body{grid-template-columns:1fr}
+      .dashboard{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="logo">
+        <div class="logo-badge" aria-hidden="true"><span>𓂀</span></div>
+        <div>
+          <div style="font-size:20px">أصابع الفرعون</div>
+          <small style="color:var(--muted)">مجلة خفيفة — أنشئ مقالًا بنقرتين</small>
+        </div>
+      </div>
+      <nav style="display:flex;align-items:center;gap:10px">
+        <div class="user-section" id="userSection">
+          <!-- سيتم ملؤها ديناميكيًا -->
+        </div>
+        <a class="btn" href="#" id="openEditorBtn">✍️ أداة كتابة</a>
+        <a class="btn" href="#posts">📚 المقالات</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="mainContent">
+    <!-- المحتوى الرئيسي سيتم تحميله ديناميكيًا -->
+  </main>
+
+  <!-- نافذة أداة الكتابة -->
+  <dialog id="editorDialog">
+    <div class="ed-header">
+      <div class="ed-title">✍️ أداة كتابة مقال</div>
+      <button class="tool-btn ghost" id="closeEditor">إغلاق</button>
+    </div>
+    <div class="ed-body">
+      <div class="ed-left">
+        <div class="toolbar">
+          <button class="tool-btn" data-cmd="bold"><i class="fas fa-bold"></i></button>
+          <button class="tool-btn" data-cmd="italic"><i class="fas fa-italic"></i></button>
+          <button class="tool-btn" data-cmd="formatBlock" data-value="h2"><i class="fas fa-heading"></i></button>
+          <button class="tool-btn" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+          <button class="tool-btn" data-cmd="insertOrderedList"><i class="fas fa-list-ol"></i></button>
+          <button class="tool-btn" id="insertImageBtn"><i class="fas fa-image"></i></button>
+          <button class="tool-btn" id="insertDividerBtn"><i class="fas fa-minus"></i></button>
+          <button class="tool-btn" id="clearBtn"><i class="fas fa-trash"></i></button>
+        </div>
+        <div id="editorArea" contenteditable="true"></div>
+        <div class="article-limit" id="articleLimit">
+          <i class="fas fa-chart-pie"></i>
+          <div class="limit-bar">
+            <div class="limit-progress" id="limitProgress" style="width: 0%"></div>
+          </div>
+          <span id="limitText">0/3 مقالات اليوم</span>
+        </div>
+      </div>
+      <div class="ed-right">
+        <div>
+          <label>عنوان المقال</label>
+          <input type="text" id="postTitle" placeholder="اكتب عنوانًا جذابًا">
+        </div>
+        <div>
+          <label>رابط صورة الغلاف (اختياري)</label>
+          <input type="url" id="coverUrl" placeholder="https://...">
+          <div class="image-gallery" id="coverGallery">
+            <!-- سيتم ملؤها بالصور المحملة مسبقًا -->
+          </div>
+          <button class="tool-btn" id="uploadImageBtn" style="margin-top: 10px; width: 100%">
+            <i class="fas fa-upload"></i> رفع صورة
+          </button>
+          <input type="file" id="imageUpload" accept="image/*" style="display: none">
+        </div>
+        <div>
+          <label>وصف (SEO)</label>
+          <textarea id="postDesc" rows="3" placeholder="ملخص قصير عن المقال"></textarea>
+        </div>
+        <div>
+          <label>وسوم (مفصولة بفواصل)</label>
+          <input type="text" id="postTags" placeholder="تقنية، إبداع، تعليم">
+        </div>
+        <div>
+          <label>التصنيف</label>
+          <select id="postCategory">
+            <option value="عام">عام</option>
+            <option value="تقنية">تقنية</option>
+            <option value="تعليم">تعليم</option>
+            <option value="ترفيه">ترفيه</option>
+            <option value="أخبار">أخبار</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="tool-btn ghost" id="previewBtn">معاينة</button>
+      <button class="tool-btn primary" id="publishBtn">نشر المقال</button>
+    </div>
+  </dialog>
+
+  <!-- نافذة عرض المقال الكامل -->
+  <dialog id="readerDialog">
+    <div class="ed-header">
+      <div class="ed-title" id="readerTitle">عنوان المقال</div>
+      <button class="tool-btn ghost" id="closeReader">إغلاق</button>
+    </div>
+    <div class="p" id="readerContent" style="max-height:72vh;overflow:auto"></div>
+  </dialog>
+
+  <!-- نافذة تسجيل الدخول -->
+  <dialog id="loginDialog">
+    <div class="ed-header">
+      <div class="ed-title">تسجيل الدخول</div>
+      <button class="tool-btn ghost" id="closeLogin">إغلاق</button>
+    </div>
+    <div class="p" style="text-align: center; padding: 30px 20px">
+      <div style="font-size: 60px; margin-bottom: 20px;">𓂀</div>
+      <h2 style="margin: 0 0 10px">مرحبًا بك في أصابع الفرعون</h2>
+      <p style="color: var(--muted); margin: 0 0 30px">سجل الدخول لكتابة المقالات وإدارتها</p>
+      <div id="g_id_onload"
+           data-client_id="YOUR_GOOGLE_CLIENT_ID"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-login_uri="/login"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-shape="rectangular"
+           data-theme="filled_blue"
+           data-text="signin_with"
+           data-size="large"
+           data-logo_alignment="left"
+           data-width="300">
+      </div>
+      <p style="color: var(--muted); font-size: 14px; margin-top: 30px">
+        بتسجيل الدخول، فإنك توافق على <a href="#">شروط الخدمة</a> و<a href="#">سياسة الخصوصية</a>
+      </p>
+    </div>
+  </dialog>
+
+  <!-- إشعارات -->
+  <div class="notification" id="notification">
+    <div id="notificationMessage"></div>
+  </div>
+
+  <script>
+    // العناصر الأساسية
+    const $$ = s => document.querySelector(s);
+    const $$$ = s => document.querySelectorAll(s);
+    
+    // مفاتيح التخزين
+    const postsKey = 'pharaoh_fingers_posts_v2';
+    const usersKey = 'pharaoh_fingers_users_v1';
+    const currentUserKey = 'pharaoh_current_user';
+    
+    // حالة التطبيق
+    let currentUser = null;
+    let currentView = 'home';
+    let currentArticleId = null;
+    
+    // تهيئة التطبيق
+    function initApp() {
+      loadUser();
+      renderMainContent();
+      setupEventListeners();
+    }
+    
+    // تحميل بيانات المستخدم
+    function loadUser() {
+      const userData = localStorage.getItem(currentUserKey);
+      if (userData) {
+        currentUser = JSON.parse(userData);
+        renderUserSection();
+      } else {
+        renderUserSection();
+      }
+    }
+    
+    // حفظ بيانات المستخدم
+    function saveUser(user) {
+      currentUser = user;
+      localStorage.setItem(currentUserKey, JSON.stringify(user));
+      
+      // حفظ في قائمة المستخدمين
+      const users = getUsers();
+      const existingUserIndex = users.findIndex(u => u.id === user.id);
+      if (existingUserIndex >= 0) {
+        users[existingUserIndex] = user;
+      } else {
+        users.push(user);
+      }
+      localStorage.setItem(usersKey, JSON.stringify(users));
+      
+      renderUserSection();
+    }
+    
+    // تسجيل الخروج
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem(currentUserKey);
+      renderUserSection();
+      showNotification('تم تسجيل الخروج بنجاح', 'success');
+      renderMainContent();
+    }
+    
+    // عرض قسم المستخدم
+    function renderUserSection() {
+      const userSection = $$('#userSection');
+      if (currentUser) {
+        userSection.innerHTML = `
+          <img class="user-avatar" src="${currentUser.picture}" alt="${currentUser.name}">
+          <div class="user-name">${currentUser.name}</div>
+          <button class="tool-btn ghost" id="dashboardBtn"><i class="fas fa-th-large"></i> لوحة التحكم</button>
+          <button class="tool-btn ghost" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+        `;
+      } else {
+        userSection.innerHTML = `
+          <button class="login-btn" id="loginBtn">
+            <i class="fab fa-google"></i> تسجيل الدخول
+          </button>
+        `;
+      }
+    }
+    
+    //获取用户列表
+    function getUsers() {
+      try {
+        return JSON.parse(localStorage.getItem(usersKey)) || [];
+      } catch {
+        return [];
+      }
+    }
+    
+    //获取文章列表
+    function getPosts() {
+      try {
+        return JSON.parse(localStorage.getItem(postsKey)) || [];
+      } catch {
+        return [];
+      }
+    }
+    
+    //保存文章列表
+    function savePosts(posts) {
+      localStorage.setItem(postsKey, JSON.stringify(posts));
+    }
+    
+    //获取用户今日文章数量
+    function getUserTodayArticles(userId) {
+      const posts = getPosts();
+      const today = new Date().toDateString();
+      return posts.filter(post => 
+        post.authorId === userId && 
+        new Date(post.date).toDateString() === today
+      ).length;
+    }
+    
+    //渲染主内容
+    function renderMainContent() {
+      const mainContent = $$('#mainContent');
+      
+      switch(currentView) {
+        case 'home':
+          renderHomeView(mainContent);
+          break;
+        case 'dashboard':
+          renderDashboardView(mainContent);
+          break;
+        case 'article':
+          renderArticleView(mainContent);
+          break;
+        default:
+          renderHomeView(mainContent);
+      }
+    }
+    
+    //渲染首页
+    function renderHomeView(container) {
+      const posts = getPosts();
+      
+      container.innerHTML = `
+        <section class="hero">
+          <article class="card">
+            <div class="p">
+              <h1 class="title">أهلاً بك في «أصابع الفرعون»</h1>
+              <p class="subtitle">قالب بسيط وجذاب يدعم الإعلانات ويحتوي أداة متكاملة لكتابة المقالات مع الصور والعناوين والفواصل. كل شيء يُحفظ محليًا على جهازك ويمكنك التصدير والاستيراد بسهولة.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                ${currentUser ? `
+                  <button class="tool-btn" id="openEditorBtn2">ابدأ كتابة مقال جديد</button>
+                  <button class="tool-btn" id="exportBtn">تصدير جميع المقالات</button>
+                  <label class="tool-btn" style="cursor:pointer">
+                    استيراد
+                    <input type="file" id="importFile" accept="application/json" style="display:none">
+                  </label>
+                ` : `
+                  <button class="tool-btn" id="openEditorBtn2" disabled>سجل الدخول لكتابة مقالات</button>
+                `}
+              </div>
+            </div>
+          </article>
+          <aside class="card">
+            <div class="p">
+              <h3 style="margin:0 0 12px">مساحة إعلان مميزة</h3>
+              <div class="ad-slot" id="ad-slot-hero">
+                <small>موضع إعلان — 336×280</small>
+              </div>
+              <p class="subtitle" style="margin-top:12px">استبدل هذا الصندوق بكود إعلان أدسنس الملائم لوحدتك الإعلانية.</p>
+            </div>
+          </aside>
+        </section>
+
+        <section class="grid" id="posts">
+          <div>
+            <h2 style="margin:0 0 12px">أحدث المقالات</h2>
+            <div class="posts" id="postsWrap">
+              ${renderPostsList(posts)}
+            </div>
+          </div>
+          <aside class="sidebar" aria-label="شريط جانبي">
+            <div class="widget" style="display:flex;flex-direction:column;gap:12px">
+              <h3 style="margin:0">إعلان جانبي</h3>
+              <div class="ad-slot" id="ad-slot-side">
+                <small>موضع إعلان — 300×600</small>
+              </div>
+            </div>
+            <div class="widget">
+              <h3 style="margin-top:0">حول الموقع</h3>
+              <p style="margin:0;color:var(--muted)">قالب مفتوح المصدر لاستخدام شخصي. عدّل الألوان والنصوص كما تحب.</p>
+            </div>
+          </aside>
+        </section>
+
+        <footer>
+          <div>© <span id="year">${new Date().getFullYear()}</span> أصابع الفرعون — جميع الحقوق محفوظة</div>
+        </footer>
+      `;
+    }
+    
+    //渲染文章列表
+    function renderPostsList(posts) {
+      if (!posts.length) {
+        return '<div class="card p" style="grid-column:1/-1;color:var(--muted)">لا توجد مقالات بعد. ابدأ بإنشاء أول مقال لك من زر "أداة كتابة".</div>';
+      }
+      
+      return posts.slice(0, 6).map(post => `
+        <article class="post card" data-id="${post.id}">
+          <div class="thumb" style="background-image: url('${post.cover || ''}'); background-size: cover; background-position: center"></div>
+          <div class="p">
+            <div class="meta">
+              <span class="date">${new Date(post.date).toLocaleDateString('ar-EG', {year: 'numeric', month: 'long', day: 'numeric'})}</span> • 
+              <span class="tags">${(post.tags || []).slice(0, 2).join(' • ')}</span>
+            </div>
+            <h3 class="title">${post.title}</h3>
+            <p class="excerpt" style="color:var(--muted)">${post.desc || extractExcerpt(post.html)}</p>
+            <a class="readmore" href="#article-${post.id}" data-id="${post.id}">قراءة المزيد →</a>
+          </div>
+        </article>
+      `).join('');
+    }
+    
+    //渲染仪表板视图
+    function renderDashboardView(container) {
+      if (!currentUser) {
+        showNotification('يجب تسجيل الدخول للوصول إلى لوحة التحكم', 'error');
+        currentView = 'home';
+        renderMainContent();
+        return;
+      }
+      
+      const userPosts = getPosts().filter(post => post.authorId === currentUser.id);
+      const todayPosts = userPosts.filter(post => 
+        new Date(post.date).toDateString() === new Date().toDateString()
+      );
+      
+      container.innerHTML = `
+        <h1 style="margin:0 0 20px">لوحة التحكم</h1>
+        <div class="dashboard">
+          <div class="dashboard-nav">
+            <a href="#" class="active" data-tab="stats"><i class="fas fa-chart-bar"></i> الإحصائيات</a>
+            <a href="#" data-tab="articles"><i class="fas fa-file-alt"></i> مقالاتي</a>
+            <a href="#" data-tab="profile"><i class="fas fa-user"></i> الملف الشخصي</a>
+            <a href="#" data-tab="settings"><i class="fas fa-cog"></i> الإعدادات</a>
+          </div>
+          <div class="dashboard-content">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <i class="fas fa-file-alt" style="font-size: 32px; color: var(--brand)"></i>
+                <div class="stat-value">${userPosts.length}</div>
+                <div class="stat-label">إجمالي المقالات</div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-calendar-day" style="font-size: 32px; color: var(--brand)"></i>
+                <div class="stat-value">${todayPosts.length}/3</div>
+                <div class="stat-label">مقالات اليوم</div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-eye" style="font-size: 32px; color: var(--brand)"></i>
+                <div class="stat-value">${userPosts.reduce((sum, post) => sum + (post.views || 0), 0)}</div>
+                <div class="stat-label">مشاهدات</div>
+              </div>
+            </div>
+            
+            <h2>مقالاتي الأخيرة</h2>
+            <table class="articles-table">
+              <thead>
+                <tr>
+                  <th>العنوان</th>
+                  <th>التاريخ</th>
+                  <th>المشاهدات</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${userPosts.slice(0, 5).map(post => `
+                  <tr>
+                    <td>${post.title}</td>
+                    <td>${new Date(post.date).toLocaleDateString('ar-EG')}</td>
+                    <td>${post.views || 0}</td>
+                    <td>
+                      <button class="tool-btn ghost" data-action="view" data-id="${post.id}"><i class="fas fa-eye"></i></button>
+                      <button class="tool-btn ghost" data-action="edit" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                      <button class="tool-btn ghost" data-action="delete" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; text-align: center">
+              <button class="tool-btn primary" id="newArticleBtn"><i class="fas fa-plus"></i> مقال جديد</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    //渲染文章视图
+    function renderArticleView(container) {
+      const posts = getPosts();
+      const article = posts.find(p => p.id === currentArticleId);
+      
+      if (!article) {
+        showNotification('المقال غير موجود', 'error');
+        currentView = 'home';
+        renderMainContent();
+        return;
+      }
+      
+      // زيادة عدد المشاهدات
+      article.views = (article.views || 0) + 1;
+      savePosts(posts);
+      
+      container.innerHTML = `
+        <article class="article-page">
+          <div class="article-header">
+            ${article.cover ? `<img src="${article.cover}" alt="${article.title}" class="article-cover">` : ''}
+            <h1 class="article-title">${article.title}</h1>
+            <div class="article-meta">
+              <div class="article-author">
+                <img src="${article.authorPicture}" alt="${article.author}" class="user-avatar">
+                <span>${article.author}</span>
+              </div>
+              <span>•</span>
+              <span>${new Date(article.date).toLocaleDateString('ar-EG', {year: 'numeric', month: 'long', day: 'numeric'})}</span>
+              <span>•</span>
+              <span>${article.views || 0} مشاهدة</span>
+            </div>
+            ${article.tags && article.tags.length ? `
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+                ${article.tags.map(tag => `<span style="background:rgba(255,255,255,.1);padding:4px 10px;border-radius:12px;font-size:14px">${tag}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+          <div class="article-content">
+            ${article.html}
+          </div>
+        </article>
+        
+        <footer style="margin-top: 40px">
+          <div>© <span id="year">${new Date().getFullYear()}</span> أصابع الفرعون — جميع الحقوق محفوظة</div>
+        </footer>
+      `;
+    }
+    
+    //提取文章摘要
+    function extractExcerpt(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      const text = (tmp.textContent || '').trim();
+      return text.slice(0, 160) + (text.length > 160 ? '…' : '');
+    }
+    
+    //显示通知
+    function showNotification(message, type = 'info') {
+      const notification = $$('#notification');
+      const messageEl = $$('#notificationMessage');
+      
+      messageEl.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+    
+    //设置事件监听器
+    function setupEventListeners() {
+      // تسجيل الدخول
+      document.body.addEventListener('click', (e) => {
+        if (e.target.id === 'loginBtn' || e.target.closest('#loginBtn')) {
+          $$('#loginDialog').showModal();
+        }
+        
+        if (e.target.id === 'closeLogin' || e.target.closest('#closeLogin')) {
+          $$('#loginDialog').close();
+        }
+        
+        // تسجيل الخروج
+        if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
+          logout();
+        }
+        
+        // لوحة التحكم
+        if (e.target.id === 'dashboardBtn' || e.target.closest('#dashboardBtn')) {
+          currentView = 'dashboard';
+          renderMainContent();
+        }
+        
+        // فتح المحرر
+        if (e.target.id === 'openEditorBtn' || e.target.id === 'openEditorBtn2' || e.target.closest('#openEditorBtn') || e.target.closest('#openEditorBtn2')) {
+          if (!currentUser) {
+            $$('#loginDialog').showModal();
+            return;
+          }
+          
+          // التحقق من عدد المقالات اليوم
+          const todayArticles = getUserTodayArticles(currentUser.id);
+          if (todayArticles >= 3) {
+            showNotification('لقد وصلت إلى الحد الأقصى للمقالات اليوم (3 مقالات)', 'error');
+            return;
+          }
+          
+          // تحديث شريط التقدم
+          $$('#limitProgress').style.width = `${(todayArticles / 3) * 100}%`;
+          $$('#limitText').textContent = `${todayArticles}/3 مقالات اليوم`;
+          
+          $$('#editorDialog').showModal();
+        }
+        
+        // إغلاق المحرر
+        if (e.target.id === 'closeEditor' || e.target.closest('#closeEditor')) {
+          $$('#editorDialog').close();
+        }
+        
+        // معاينة المقال
+        if (e.target.id === 'previewBtn' || e.target.closest('#previewBtn')) {
+          const { title, html, cover } = collectEditorData();
+          fillReader({ title, html, cover });
+          $$('#readerDialog').showModal();
+        }
+        
+        // إغلاق المعاينة
+        if (e.target.id === 'closeReader' || e.target.closest('#closeReader')) {
+          $$('#readerDialog').close();
+        }
+        
+        // نشر المقال
+        if (e.target.id === 'publishBtn' || e.target.closest('#publishBtn')) {
+          publishArticle();
+        }
+        
+        // قراءة المقال
+        if (e.target.classList.contains('readmore') || e.target.closest('.readmore')) {
+          const articleId = e.target.dataset.id || e.target.closest('.readmore').dataset.id;
+          currentArticleId = articleId;
+          currentView = 'article';
+          renderMainContent();
+          window.scrollTo(0, 0);
+        }
+        
+        // العودة للرئيسية
+        if (e.target.closest('.logo') || e.target.closest('.nav a[href="#posts"]')) {
+          currentView = 'home';
+          renderMainContent();
+          window.scrollTo(0, 0);
+        }
+      });
+      
+      // معالجة تسجيل الدخول من Google
+      window.handleGoogleSignIn = (response) => {
+        const userData = {
+          id: response.credential,
+          name: response.name,
+          email: response.email,
+          picture: response.picture
+        };
+        
+        saveUser(userData);
+        $$('#loginDialog').close();
+        showNotification(`مرحبًا ${userData.name}!`, 'success');
+        renderMainContent();
+      };
+    }
+    
+    // جمع بيانات المحرر
+    function collectEditorData() {
+      return {
+        title: $$('#postTitle').value.trim(),
+        cover: $$('#coverUrl').value.trim(),
+        desc: $$('#postDesc').value.trim(),
+        tags: $$('#postTags').value.split(',').map(s => s.trim()).filter(Boolean),
+        category: $$('#postCategory').value,
+        html: $$('#editorArea').innerHTML.trim()
+      };
+    }
+    
+    // نشر المقال
+    function publishArticle() {
+      if (!currentUser) {
+        showNotification('يجب تسجيل الدخول أولاً', 'error');
+        return;
+      }
+      
+      const data = collectEditorData();
+      if (!data.title || !data.html) {
+        showNotification('يرجى إدخال عنوان ومحتوى للمقال', 'error');
+        return;
+      }
+      
+      // التحقق من عدد المقالات اليوم
+      const todayArticles = getUserTodayArticles(currentUser.id);
+      if (todayArticles >= 3) {
+        showNotification('لقد وصلت إلى الحد الأقصى للمقالات اليوم (3 مقالات)', 'error');
+        return;
+      }
+      
+      const posts = getPosts();
+      posts.unshift({
+        id: crypto.randomUUID(),
+        ...data,
+        author: currentUser.name,
+        authorId: currentUser.id,
+        authorPicture: currentUser.picture,
+        date: new Date().toISOString(),
+        views: 0
+      });
+      
+      savePosts(posts);
+      $$('#editorDialog').close();
+      
+      // تفريغ الحقول
+      ['postTitle', 'coverUrl', 'postDesc', 'postTags'].forEach(id => $$('#' + id).value = '');
+      $$('#editorArea').innerHTML = '';
+      $$('#postCategory').value = 'عام';
+      
+      showNotification('تم نشر المقال بنجاح!', 'success');
+      renderMainContent();
+    }
+    
+    // ملء قارئ المقالات
+    function fillReader({ title, html, cover }) {
+      $$('#readerTitle').textContent = title || 'بدون عنوان';
+      const box = $$('#readerContent');
+      box.innerHTML = '';
+      
+      if (cover) {
+        const img = document.createElement('img');
+        img.src = cover;
+        img.alt = title;
+        img.style.borderRadius = '14px';
+        img.style.marginBottom = '12px';
+        img.style.width = '100%';
+        box.appendChild(img);
+      }
+      
+      const content = document.createElement('div');
+      content.innerHTML = html || '<p style="color:var(--muted)">لا يوجد محتوى.</p>';
+      box.appendChild(content);
+    }
+    
+    // تهيئة التطبيق عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
