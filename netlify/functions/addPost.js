@@ -1,44 +1,45 @@
 import fs from 'fs';
 import path from 'path';
 
-const SAVE_PATH = '/tmp/save.json';
-
 export async function handler(event, context) {
-  try {
-    const { title, content, cover = '', description = '', author = 'زائر' } = JSON.parse(event.body);
+  const filePath = path.join('/tmp', 'save.json');
+  let posts = [];
 
-    // قراءة البيانات الحالية
-    let posts = [];
-    if (fs.existsSync(SAVE_PATH)) {
-      const data = fs.readFileSync(SAVE_PATH, 'utf-8');
+  // قراءة المقالات السابقة
+  try {
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf-8');
       posts = JSON.parse(data);
     }
+  } catch (err) {
+    console.error('خطأ في قراءة save.json:', err);
+  }
 
-    // إنشاء مقال جديد
+  try {
+    const { title, content, cover, description, author } = JSON.parse(event.body);
     const newPost = {
       id: Date.now(),
       title,
       content,
-      cover,
-      description,
-      author,
+      cover: cover || '',
+      description: description || '',
+      author: author || 'زائر',
       created_at: new Date().toISOString()
     };
 
     posts.unshift(newPost);
 
     // كتابة المقالات في الملف
-    fs.writeFileSync(SAVE_PATH, JSON.stringify(posts, null, 2), 'utf-8');
+    fs.writeFileSync(filePath, JSON.stringify(posts, null, 2), 'utf-8');
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, post: newPost })
+      body: JSON.stringify({ success: true, post: newPost }),
     };
-
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ success: false, error: err.message })
+      body: JSON.stringify({ success: false, error: err.message }),
     };
   }
 }
