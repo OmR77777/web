@@ -14,7 +14,7 @@ export async function handler(event, context) {
       posts = JSON.parse(data);
     }
 
-    // إضافة مقال جديد
+    // إنشاء مقال جديد
     const newPost = {
       id: Date.now(),
       title,
@@ -22,4 +22,23 @@ export async function handler(event, context) {
       cover,
       description,
       author,
-      created_at
+      created_at: new Date().toISOString()
+    };
+
+    posts.unshift(newPost);
+
+    // كتابة المقالات في الملف
+    fs.writeFileSync(SAVE_PATH, JSON.stringify(posts, null, 2), 'utf-8');
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, post: newPost })
+    };
+
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ success: false, error: err.message })
+    };
+  }
+}
