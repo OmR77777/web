@@ -1,31 +1,32 @@
-import { Client } from "@netlify/neon";
+import fs from 'fs';
+import path from 'path';
 
 export async function handler(event, context) {
-  const client = new Client({ connectionString: process.env.NETLIFY_DATABASE_URL });
-  await client.connect();
-
   try {
-    const { title, content, cover, desc, author } = JSON.parse(event.body);
+    const { title, content, cover, description, author } = JSON.parse(event.body);
 
-    // حقل author افتراضي إذا لم يُرسل
-    const postAuthor = author || "زائر";
+    if (!title || !content || !author) {
+      return { statusCode: 400, body: JSON.stringify({ success: false, error: "العنوان، المحتوى، والمؤلف مطلوبون." }) };
+    }
 
-    const result = await client.query(
-      `INSERT INTO posts (title, content, cover, desc, author) 
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [title, content, cover || null, desc || null, postAuthor]
-    );
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true, post: result.rows[0] }),
+    const filePath = path.resolve('./save.json');
+    let posts = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    
+    const newPost = {
+      id: Date.now(),
+      title,
+      content,
+      cover: cover || '',
+      description: description || '',
+      author,
+      created_at: new Date().toISOString()
     };
+
+    posts.unshift(newPost);
+    fs.writeFileSync(filePath, JSON.stringify(posts, null, 2), 'utf-8');
+
+    return { statusCode: 200, body: JSON.stringify({ success: true, post: newPost }) };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ success: false, error: err.message }),
-    };
-  } finally {
-    await client.end();
+    return { statusCode: 500, body: JSON.stringify({ success: false, error: err.message }) };
   }
 }
