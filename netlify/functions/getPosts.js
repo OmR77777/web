@@ -6,7 +6,9 @@ export async function handler(event, context) {
 
   try {
     const result = await client.query(
-      "SELECT id, title, content, cover, desc, author, created_at FROM posts ORDER BY id DESC"
+      `SELECT id, title, content, cover, desc, author, created_at 
+       FROM posts 
+       ORDER BY id DESC`
     );
 
     return {
