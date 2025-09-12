@@ -11,8 +11,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7548011991192367" crossorigin="anonymous"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
         :root {
@@ -41,7 +42,6 @@
             color: var(--dark);
             line-height: 1.6;
             min-height: 100vh;
-            padding-bottom: 50px;
         }
 
         /* Header Styles */
@@ -66,6 +66,7 @@
             font-size: 24px;
             font-weight: 800;
             color: var(--primary);
+            cursor: pointer;
         }
 
         .logo i {
@@ -131,6 +132,12 @@
         }
 
         /* Main Content */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
         .hero {
             text-align: center;
             padding: 60px 20px;
@@ -156,9 +163,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 40px 0;
         }
 
         .tool-card {
@@ -170,6 +175,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            cursor: pointer;
         }
 
         .tool-card:hover {
@@ -244,6 +250,131 @@
             background: var(--secondary);
         }
 
+        /* Tool View */
+        .tool-view {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin: 20px 0;
+        }
+
+        .tool-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .tool-view-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+        }
+
+        .back-to-tools {
+            padding: 8px 16px;
+            background: var(--light);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .back-to-tools:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Calculator Styles */
+        .calculator {
+            max-width: 320px;
+            margin: 0 auto;
+            background: var(--light);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .calculator-display {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.8rem;
+            font-weight: 600;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        .calculator-history {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            min-height: 40px;
+            text-align: left;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: #bdc3c7;
+        }
+
+        .calc-btn {
+            padding: 16px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .calc-btn:hover {
+            background: #f1f1f1;
+        }
+
+        .calc-btn.operator {
+            background: #f9c74f;
+            color: var(--dark);
+        }
+
+        .calc-btn.operator:hover {
+            background: #f8961e;
+        }
+
+        .calc-btn.equals {
+            background: var(--success);
+            color: white;
+        }
+
+        .calc-btn.equals:hover {
+            background: #3a86ff;
+        }
+
+        .calc-btn.clear {
+            background: var(--accent);
+            color: white;
+        }
+
+        .calc-btn.clear:hover {
+            background: #e63946;
+        }
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -262,7 +393,7 @@
             background: white;
             margin: 40px auto;
             border-radius: 16px;
-            max-width: 900px;
+            max-width: 500px;
             width: 90%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: modalFadeIn 0.4s;
@@ -400,6 +531,26 @@
             padding: 0 15px;
         }
 
+        .auth-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .auth-message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .auth-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -421,10 +572,6 @@
             
             nav {
                 display: none;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
             }
         }
 
@@ -450,261 +597,205 @@
 <body>
     <!-- Header -->
     <header>
-        <div class="logo">
+        <div class="logo" onclick="showToolSelection()">
             <i class="fas fa-tools"></i>
             <span>أدوات ويب متعددة</span>
         </div>
         
         <nav>
-            <a href="#"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="#" onclick="showToolSelection()"><i class="fas fa-home"></i> الرئيسية</a>
             <a href="#tools"><i class="fas fa-th"></i> الأدوات</a>
             <a href="#about"><i class="fas fa-info-circle"></i> عن الموقع</a>
-            <a href="#contact"><i class="fas fa-envelope"></i> اتصل بنا</a>
         </nav>
         
         <div class="auth-buttons">
-            <button class="btn btn-outline" onclick="openAuthModal()">
+            <button class="btn btn-outline" onclick="openAuthModal()" id="loginBtn">
                 <i class="fas fa-user"></i> تسجيل الدخول
             </button>
-            <button class="btn btn-primary" onclick="openAuthModal()">
+            <button class="btn btn-primary" onclick="openAuthModal()" id="registerBtn">
                 <i class="fas fa-user-plus"></i> إنشاء حساب
+            </button>
+            <button class="btn btn-primary" onclick="logout()" id="logoutBtn" style="display: none;">
+                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
             </button>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>منصة متكاملة من أدوات الويب لجميع احتياجاتك</h1>
-        <p>استخدم أدواتنا المتطورة والمجانية للقيام بمهامك اليومية بكل سهولة وكفاءة</p>
-        <button class="btn btn-primary">
-            <i class="fas fa-play"></i> ابدأ الآن
-        </button>
-    </section>
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Tool Selection View -->
+        <div id="toolSelection">
+            <section class="hero">
+                <h1>منصة متكاملة من أدوات الويب لجميع احتياجاتك</h1>
+                <p>استخدم أدواتنا المتطورة والمجانية للقيام بمهامك اليومية بكل سهولة وكفاءة</p>
+                <button class="btn btn-primary" onclick="scrollToTools()">
+                    <i class="fas fa-play"></i> ابدأ الآن
+                </button>
+            </section>
 
-    <!-- Tools Grid -->
-    <section id="tools" class="tools-grid">
-        <!-- Calculator Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-calculator"></i>
-                <h3>آلة حاسبة علمية</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">آلة حاسبة متقدمة مع وظائف علمية وسجل للعمليات الحسابية ووضع المبرمج</p>
-                <div class="tool-preview">
-                    <div style="font-size: 2rem; color: var(--primary);">
-                        5+3×2=11
+            <section id="tools" class="tools-grid">
+                <!-- Calculator Tool -->
+                <div class="tool-card" onclick="openTool('calculator')">
+                    <div class="tool-header">
+                        <i class="fas fa-calculator"></i>
+                        <h3>آلة حاسبة علمية</h3>
+                    </div>
+                    <div class="tool-body">
+                        <p class="tool-description">آلة حاسبة متقدمة مع وظائف علمية وسجل للعمليات الحسابية ووضع المبرمج</p>
+                        <div class="tool-preview">
+                            <div style="font-size: 2rem; color: var(--primary);">
+                                5+3×2=11
+                            </div>
+                        </div>
+                        <div class="tool-footer">
+                            <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.8</span>
+                            <button class="btn-tool">
+                                <i class="fas fa-external-link-alt"></i> فتح الأداة
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.8</span>
-                    <button class="btn-tool" onclick="openTool('calculator')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Currency Converter Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-exchange-alt"></i>
-                <h3>تحويل العملات</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">تحويل بين أكثر من 150 عملة مع أسعار صرف محدثة وآلة حاسبة مالية متكاملة</p>
-                <div class="tool-preview">
-                    <div style="font-size: 1.2rem; color: var(--primary);">
-                        1 USD = 3.67 AED
+                <!-- Currency Converter Tool -->
+                <div class="tool-card" onclick="openTool('currency')">
+                    <div class="tool-header">
+                        <i class="fas fa-exchange-alt"></i>
+                        <h3>تحويل العملات</h3>
+                    </div>
+                    <div class="tool-body">
+                        <p class="tool-description">تحويل بين أكثر من 150 عملة مع أسعار صرف محدثة وآلة حاسبة مالية متكاملة</p>
+                        <div class="tool-preview">
+                            <div style="font-size: 1.2rem; color: var(--primary);">
+                                1 USD = 3.67 AED
+                            </div>
+                        </div>
+                        <div class="tool-footer">
+                            <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.7</span>
+                            <button class="btn-tool">
+                                <i class="fas fa-external-link-alt"></i> فتح الأداة
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.7</span>
-                    <button class="btn-tool" onclick="openTool('currency')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Length Converter Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-ruler"></i>
-                <h3>تحويل الطول</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">تحويل بين جميع وحدات الطول مع دقة عالية وإمكانية حفظ سجل التحويلات</p>
-                <div class="tool-preview">
-                    <div style="font-size: 1.2rem; color: var(--primary);">
-                        1 km = 1000 m
+                <!-- Length Converter Tool -->
+                <div class="tool-card" onclick="openTool('length')">
+                    <div class="tool-header">
+                        <i class="fas fa-ruler"></i>
+                        <h3>تحويل الطول</h3>
+                    </div>
+                    <div class="tool-body">
+                        <p class="tool-description">تحويل بين جميع وحدات الطول مع دقة عالية وإمكانية حفظ سجل التحويلات</p>
+                        <div class="tool-preview">
+                            <div style="font-size: 1.2rem; color: var(--primary);">
+                                1 km = 1000 m
+                            </div>
+                        </div>
+                        <div class="tool-footer">
+                            <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.5</span>
+                            <button class="btn-tool">
+                                <i class="fas fa-external-link-alt"></i> فتح الأداة
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.5</span>
-                    <button class="btn-tool" onclick="openTool('length')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Weight Converter Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-weight"></i>
-                <h3>تحويل الوزن</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">تحويل بين وحدات الوزن المختلفة مع واجهة سهلة الاستخدام ودقة في النتائج</p>
-                <div class="tool-preview">
-                    <div style="font-size: 1.2rem; color: var(--primary);">
-                        1 kg = 1000 g
+                <!-- Weight Converter Tool -->
+                <div class="tool-card" onclick="openTool('weight')">
+                    <div class="tool-header">
+                        <i class="fas fa-weight"></i>
+                        <h3>تحويل الوزن</h3>
+                    </div>
+                    <div class="tool-body">
+                        <p class="tool-description">تحويل بين وحدات الوزن المختلفة مع واجهة سهلة الاستخدام ودقة في النتائج</p>
+                        <div class="tool-preview">
+                            <div style="font-size: 1.2rem; color: var(--primary);">
+                                1 kg = 1000 g
+                            </div>
+                        </div>
+                        <div class="tool-footer">
+                            <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.6</span>
+                            <button class="btn-tool">
+                                <i class="fas fa-external-link-alt"></i> فتح الأداة
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.6</span>
-                    <button class="btn-tool" onclick="openTool('weight')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Color Generator Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-palette"></i>
-                <h3>مولد الألوان</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">اكتشف ألوانًا جميلة وأنشئ لوحات ألوان متناسقة مع أكواد HEX و RGB و HSL</p>
-                <div class="tool-preview">
-                    <div style="display: flex; gap: 5px;">
-                        <div style="width: 30px; height: 30px; background: #4361ee; border-radius: 6px;"></div>
-                        <div style="width: 30px; height: 30px; background: #3a0ca3; border-radius: 6px;"></div>
-                        <div style="width: 30px; height: 30px; background: #f72585; border-radius: 6px;"></div>
+                <!-- Color Generator Tool -->
+                <div class="tool-card" onclick="openTool('color')">
+                    <div class="tool-header">
+                        <i class="fas fa-palette"></i>
+                        <h3>مولد الألوان</h3>
+                    </div>
+                    <div class="tool-body">
+                        <p class="tool-description">اكتشف ألوانًا جميلة وأنشئ لوحات ألوان متناسقة مع أكواد HEX و RGB و HSL</p>
+                        <div class="tool-preview">
+                            <div style="display: flex; gap: 5px;">
+                                <div style="width: 30px; height: 30px; background: #4361ee; border-radius: 6px;"></div>
+                                <div style="width: 30px; height: 30px; background: #3a0ca3; border-radius: 6px;"></div>
+                                <div style="width: 30px; height: 30px; background: #f72585; border-radius: 6px;"></div>
+                            </div>
+                        </div>
+                        <div class="tool-footer">
+                            <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.9</span>
+                            <button class="btn-tool">
+                                <i class="fas fa-external-link-alt"></i> فتح الأداة
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.9</span>
-                    <button class="btn-tool" onclick="openTool('color')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
+
+                <!-- More tools would be listed here -->
+            </section>
         </div>
 
-        <!-- Quotes Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-quote-left"></i>
-                <h3>الاقتباسات اليومية</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">اكتشف اقتباسات ملهمة من أشهر الشخصيات مع إمكانية حفظ المفضلة ومشاركتها</p>
-                <div class="tool-preview">
-                    <div style="font-style: italic; color: var(--primary); text-align: center;">
-                        "العقل زينة والعمل جوهر"
-                    </div>
-                </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.7</span>
-                    <button class="btn-tool" onclick="openTool('quotes')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
+        <!-- Tool Views -->
+        <div id="toolViews">
+            <!-- Calculator View -->
+            <div id="calculatorView" class="tool-view">
+                <div class="tool-view-header">
+                    <h2><i class="fas fa-calculator"></i> آلة حاسبة علمية</h2>
+                    <button class="back-to-tools" onclick="showToolSelection()">
+                        <i class="fas fa-arrow-right"></i> العودة إلى الأدوات
                     </button>
                 </div>
+                
+                <div class="calculator">
+                    <div class="calculator-history" id="calcHistory"></div>
+                    <div class="calculator-display" id="calcDisplay">0</div>
+                    <div class="calculator-buttons">
+                        <button class="calc-btn clear" onclick="clearCalculator()">C</button>
+                        <button class="calc-btn operator" onclick="appendToCalc('(')">(</button>
+                        <button class="calc-btn operator" onclick="appendToCalc(')')">)</button>
+                        <button class="calc-btn operator" onclick="appendToCalc('/')">/</button>
+                        
+                        <button class="calc-btn" onclick="appendToCalc('7')">7</button>
+                        <button class="calc-btn" onclick="appendToCalc('8')">8</button>
+                        <button class="calc-btn" onclick="appendToCalc('9')">9</button>
+                        <button class="calc-btn operator" onclick="appendToCalc('*')">×</button>
+                        
+                        <button class="calc-btn" onclick="appendToCalc('4')">4</button>
+                        <button class="calc-btn" onclick="appendToCalc('5')">5</button>
+                        <button class="calc-btn" onclick="appendToCalc('6')">6</button>
+                        <button class="calc-btn operator" onclick="appendToCalc('-')">-</button>
+                        
+                        <button class="calc-btn" onclick="appendToCalc('1')">1</button>
+                        <button class="calc-btn" onclick="appendToCalc('2')">2</button>
+                        <button class="calc-btn" onclick="appendToCalc('3')">3</button>
+                        <button class="calc-btn operator" onclick="appendToCalc('+')">+</button>
+                        
+                        <button class="calc-btn" onclick="appendToCalc('0')">0</button>
+                        <button class="calc-btn" onclick="appendToCalc('.')">.</button>
+                        <button class="calc-btn" onclick="backspace()">⌫</button>
+                        <button class="calc-btn equals" onclick="calculate()">=</button>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Age Calculator Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-birthday-cake"></i>
-                <h3>حاسبة العمر</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">احسب عمرك بدقة بالسنوات والأشهر والأيام مع إحصاءات مفصلة عن مراحل الحياة</p>
-                <div class="tool-preview">
-                    <div style="font-size: 1.2rem; color: var(--primary);">
-                        25 سنة، 3 أشهر، 12 يوم
-                    </div>
-                </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.8</span>
-                    <button class="btn-tool" onclick="openTool('age')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
+            <!-- Other tool views would be implemented similarly -->
         </div>
-
-        <!-- Timer Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-stopwatch"></i>
-                <h3>المؤقت والعد التنازلي</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">مؤقت متعدد الوظائف مع إنذارات قابلة للتخصيص وإعدادات متعددة للعد التنازلي</p>
-                <div class="tool-preview">
-                    <div style="font-size: 1.5rem; color: var(--primary); font-weight: bold;">
-                        00:05:32
-                    </div>
-                </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.6</span>
-                    <button class="btn-tool" onclick="openTool('timer')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Temperature Converter Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-temperature-high"></i>
-                <h3>تحويل درجة الحرارة</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">تحويل بين وحدات الحرارة المختلفة مع شرح للقراءات ونطاقات الدرجات</p>
-                <div class="tool-preview">
-                    <div style="font-size: 1.2rem; color: var(--primary);">
-                        100°C = 212°F
-                    </div>
-                </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.5</span>
-                    <button class="btn-tool" onclick="openTool('temperature')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Number Guessing Game Tool -->
-        <div class="tool-card">
-            <div class="tool-header">
-                <i class="fas fa-dice"></i>
-                <h3>لعبة تخمين الرقم</h3>
-            </div>
-            <div class="tool-body">
-                <p class="tool-description">لعبة مسلية لتخمين الأرقام مع مستويات صعوبة مختلفة وإحصائيات الأداء</p>
-                <div class="tool-preview">
-                    <div style="font-size: 1.2rem; color: var(--primary);">
-                        الرقم بين 1 و 100
-                    </div>
-                </div>
-                <div class="tool-footer">
-                    <span><i class="fas fa-star" style="color: var(--warning);"></i> 4.9</span>
-                    <button class="btn-tool" onclick="openTool('game')">
-                        <i class="fas fa-external-link-alt"></i> فتح الأداة
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+    </div>
 
     <!-- Auth Modal -->
     <div id="authModal" class="modal">
@@ -714,13 +805,15 @@
                 <button class="close-modal" onclick="closeAuthModal()">&times;</button>
             </div>
             <div class="modal-body">
+                <div id="authMessage" class="auth-message"></div>
+                
                 <div class="auth-tabs">
                     <div class="auth-tab active" onclick="switchAuthTab('login')">تسجيل الدخول</div>
                     <div class="auth-tab" onclick="switchAuthTab('register')">إنشاء حساب</div>
                 </div>
                 
                 <div class="auth-container">
-                    <button class="btn btn-google">
+                    <button class="btn btn-google" onclick="signInWithGoogle()">
                         <i class="fab fa-google"></i> المتابعة مع جوجل
                     </button>
                     
@@ -765,15 +858,85 @@
         </div>
     </div>
 
-    <!-- Tool Modals will be loaded here dynamically -->
-
     <footer>
         © <span id="year"></span> أدوات ويب متعددة — جميع الحقوق محفوظة
     </footer>
 
     <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyEXAMPLEAPIKEY",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:exampleappid"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
         // Set current year in footer
         document.getElementById('year').textContent = new Date().getFullYear();
+        
+        // Initialize calculator
+        let calcExpression = '';
+        let calcHistory = [];
+        
+        // Show tool selection view
+        function showToolSelection() {
+            document.getElementById('toolSelection').style.display = 'block';
+            document.getElementById('toolViews').style.display = 'none';
+            document.querySelectorAll('.tool-view').forEach(view => {
+                view.style.display = 'none';
+            });
+        }
+        
+        // Open specific tool
+        function openTool(toolName) {
+            document.getElementById('toolSelection').style.display = 'none';
+            document.getElementById('toolViews').style.display = 'block';
+            document.querySelectorAll('.tool-view').forEach(view => {
+                view.style.display = 'none';
+            });
+            document.getElementById(toolName + 'View').style.display = 'block';
+        }
+        
+        // Scroll to tools section
+        function scrollToTools() {
+            document.getElementById('tools').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Calculator functions
+        function appendToCalc(value) {
+            calcExpression += value;
+            document.getElementById('calcDisplay').textContent = calcExpression;
+        }
+        
+        function clearCalculator() {
+            calcExpression = '';
+            document.getElementById('calcDisplay').textContent = '0';
+            document.getElementById('calcHistory').textContent = '';
+        }
+        
+        function backspace() {
+            calcExpression = calcExpression.slice(0, -1);
+            document.getElementById('calcDisplay').textContent = calcExpression || '0';
+        }
+        
+        function calculate() {
+            try {
+                const result = eval(calcExpression);
+                calcHistory.push(`${calcExpression} = ${result}`);
+                if (calcHistory.length > 3) calcHistory.shift();
+                document.getElementById('calcHistory').textContent = calcHistory.join(' | ');
+                document.getElementById('calcDisplay').textContent = result;
+                calcExpression = String(result);
+            } catch (error) {
+                document.getElementById('calcDisplay').textContent = 'Error';
+                calcExpression = '';
+            }
+        }
         
         // Auth Modal Functions
         function openAuthModal() {
@@ -782,6 +945,8 @@
         
         function closeAuthModal() {
             document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authMessage').className = 'auth-message';
+            document.getElementById('authMessage').textContent = '';
         }
         
         function switchAuthTab(tab) {
@@ -799,6 +964,94 @@
             }
         }
         
+        // Firebase Authentication
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    showAuthMessage('تم تسجيل الدخول بنجاح!', 'success');
+                    updateAuthUI();
+                    setTimeout(closeAuthModal, 1500);
+                }).catch((error) => {
+                    showAuthMessage('فشل في تسجيل الدخول: ' + error.message, 'error');
+                });
+        }
+        
+        function signUpWithEmail() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showAuthMessage('كلمات المرور غير متطابقة', 'error');
+                return;
+            }
+            
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    showAuthMessage('تم إنشاء الحساب بنجاح!', 'success');
+                    updateAuthUI();
+                    setTimeout(closeAuthModal, 1500);
+                })
+                .catch((error) => {
+                    showAuthMessage('فشل في إنشاء الحساب: ' + error.message, 'error');
+                });
+        }
+        
+        function signInWithEmail() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    showAuthMessage('تم تسجيل الدخول بنجاح!', 'success');
+                    updateAuthUI();
+                    setTimeout(closeAuthModal, 1500);
+                })
+                .catch((error) => {
+                    showAuthMessage('فشل في تسجيل الدخول: ' + error.message, 'error');
+                });
+        }
+        
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                updateAuthUI();
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        }
+        
+        function showAuthMessage(message, type) {
+            const authMessage = document.getElementById('authMessage');
+            authMessage.textContent = message;
+            authMessage.className = 'auth-message ' + type;
+        }
+        
+        function updateAuthUI() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('registerBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'block';
+            } else {
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('registerBtn').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+        
+        // Form submission
+        document.getElementById('authForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const activeTab = document.querySelector('.auth-tab.active').textContent;
+            
+            if (activeTab.includes('تسجيل الدخول')) {
+                signInWithEmail();
+            } else {
+                signUpWithEmail();
+            }
+        });
+        
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('authModal');
@@ -807,20 +1060,13 @@
             }
         }
         
-        // Form submission
-        document.getElementById('authForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Here you would normally handle authentication
-            alert('سيتم تنفيذ عملية المصادقة هنا');
-            closeAuthModal();
+        // Initialize auth state
+        firebase.auth().onAuthStateChanged((user) => {
+            updateAuthUI();
         });
         
-        // Tool opening function
-        function openTool(toolName) {
-            // In a real implementation, this would load the specific tool interface
-            alert(`سيتم فتح أداة ${toolName} في نافذة منفصلة`);
-            // For demonstration, we'll just show a message
-        }
+        // Initialize the page
+        showToolSelection();
     </script>
 </body>
 </html>
